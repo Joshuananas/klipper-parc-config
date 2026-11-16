@@ -14,6 +14,8 @@ rsync -a "$REPO/Klipper-Adaptive-Meshing-Purging/Configuration/" "$CFG/Klipper-A
 cp -f "$REPO/ups.cfg" "$CFG/ups.cfg"
 mkdir -p /home/pi/printer_data/scripts
 cp -f "$REPO/host/ups_bridge.py" /home/pi/printer_data/scripts/ups_bridge.py
+mkdir -p "$CFG/scripts"
+rsync -a --chmod=+x "$REPO/scripts/" "$CFG/scripts/"
 
 # --- 2. Dependances logicielles ------------------------------------------
 # led_effect : requis par toutes les macros LED (led_control/led_centralized)
@@ -37,7 +39,7 @@ fi
 
 # gcode_shell_command : requis par YUMI_PLR (plr.sh)
 if [ ! -f "$HOME_PI/klipper/klippy/extras/gcode_shell_command.py" ] && [ -f "$HOME_PI/YUMI_PLR/gcode_shell_command.py" ]; then
-    cp -f "$HOME_PI/YUMI_PLR/gcode_shell_command.py" "$HOME_PI/klipper/klippy/extras/gcode_shell_command.py" || true
+    cp -f "$REPO/host/gcode_shell_command.py" "$HOME_PI/klipper/klippy/extras/gcode_shell_command.py" || true
 fi
 
 echo "parc-config deploye dans $CFG"
