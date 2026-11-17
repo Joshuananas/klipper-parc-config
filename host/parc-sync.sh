@@ -29,11 +29,17 @@ else
     exit 1
 fi
 
-# Redemarrage Klipper seulement hors impression (les macros sont relues au boot)
-state=$(curl -s --max-time 5 'http://localhost:7125/printer/objects/query?print_stats' \
-  | python3 -c 'import json,sys;print(json.load(sys.stdin)["result"]["status"]["print_stats"]["state"])' 2>/dev/null)
-if [ "$state" = "standby" ] || [ "$state" = "complete" ] || [ "$state" = "cancelled" ] || [ -z "$state" ]; then
+# Redemarrage Klipper seulement si machine vraiment inactive : print_stats
+# 'standby' ne suffit pas — POWER_RESUME_PRINT et autres longues macros
+# tournent hors print SD mais gardent les heaters actifs.
+state=$(curl -s --max-time 5 'http://localhost:7125/printer/objects/query?print_stats&extruder&heater_bed' \
+  | python3 -c 'import json,sys
+s=json.load(sys.stdin)["result"]["status"]
+busy = s["print_stats"]["state"] not in ("standby","complete","cancelled","error") \
+    or s["extruder"]["target"] > 0 or s["heater_bed"]["target"] > 0
+print("busy" if busy else "idle")' 2>/dev/null)
+if [ "$state" = "idle" ]; then
     sudo -n systemctl restart klipper && $LOG "klipper redemarre (etat=$state)"
 else
-    $LOG "klipper NON redemarre (impression: $state) - pris en charge au prochain boot"
+    $LOG "klipper NON redemarre (machine active: $state) - pris en charge au prochain boot"
 fi
