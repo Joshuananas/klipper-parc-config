@@ -9,11 +9,25 @@ cd "$REPO" || exit 1
 git fetch origin -q 2>/dev/null || exit 0
 LOCAL=$(git rev-parse HEAD)
 REMOTE=$(git rev-parse origin/main)
-[ "$LOCAL" = "$REMOTE" ] && exit 0
+MARKER=/home/pi/printer_data/config/.parc_deployed
+DEPLOYED=$(cat "$MARKER" 2>/dev/null)
 
-$LOG "mise a jour $LOCAL -> $REMOTE"
-git pull --ff-only -q origin main || { $LOG "pull echoue"; exit 1; }
-bash "$REPO/host/deploy.sh" && $LOG "deploy.sh applique"
+if [ "$LOCAL" != "$REMOTE" ]; then
+    $LOG "mise a jour $LOCAL -> $REMOTE"
+    git pull --ff-only -q origin main || { $LOG "pull echoue"; exit 1; }
+    LOCAL=$(git rev-parse HEAD)
+fi
+
+# Rien a deployer si ce commit a deja ete applique
+[ "$LOCAL" = "$DEPLOYED" ] && exit 0
+
+if bash "$REPO/host/deploy.sh"; then
+    echo "$LOCAL" > "$MARKER"
+    $LOG "deploy.sh applique ($LOCAL)"
+else
+    $LOG "deploy.sh en ECHEC ($LOCAL) - klipper non redemarre"
+    exit 1
+fi
 
 # Redemarrage Klipper seulement hors impression (les macros sont relues au boot)
 state=$(curl -s --max-time 5 'http://localhost:7125/printer/objects/query?print_stats' \
