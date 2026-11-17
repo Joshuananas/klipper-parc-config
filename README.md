@@ -44,3 +44,13 @@ via `upsc` fonctionne (Eaton `usbhid-ups`, Voltronic/générique `nutdrv_qx` /
 - Config par machine : `/etc/nut/ups.conf` + `nut.conf` MODE + `upsd.users`
   selon le driver du modèle branché (voir notice affichée par
   `install_parc.sh`).
+
+**Topologie maître/esclave (plusieurs machines sur le même UPS)** :
+- Le maître (UPS branché en USB) : `nut.conf MODE=netserver`,
+  `upsd.conf LISTEN 0.0.0.0 3493`, un compte `upsmon slave` partageable
+  par tout le parc dans `upsd.users`.
+- Les esclaves : `MODE=netclient` + `MONITOR <ups>@<maitre>.local 1 <user>
+  <pass> slave` dans `upsmon.conf` ; bridge avec `eaton@<maitre>.local`.
+- **Toujours le hostname mDNS (`<maitre>.local`), jamais d'IP en dur** :
+  l'IP DHCP peut changer. Prerequis : `libnss-mdns` installe + avahi sur
+  toutes les machines (fait sur SWX21/22/23).
