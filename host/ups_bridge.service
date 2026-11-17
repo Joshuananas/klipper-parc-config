@@ -1,0 +1,15 @@
+[Unit]
+Description=Pont NUT vers Klipper _UPS_DATA
+After=klipper.service nut-server.service
+
+[Service]
+Type=simple
+User=pi
+# Pas d'argument : le bridge auto-detecte le 1er UPS declare via `upsc -l`.
+# Un nom explicite reste possible en hint : ups_bridge.py monups@localhost
+ExecStart=/usr/bin/python3 /home/pi/printer_data/scripts/ups_bridge.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
