@@ -1,0 +1,8 @@
+[Unit]
+Description=Sync parc-config git repo and deploy shared Klipper config
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=pi
+ExecStart=/home/pi/parc-config/host/parc-sync.sh
