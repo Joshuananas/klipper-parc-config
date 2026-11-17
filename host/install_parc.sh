@@ -56,6 +56,8 @@ print('printer.cfg : ' + inc)
 PYEOF
 }
 add_include '[include ups.cfg]'
+add_include '[include macros/utilities/slicer_channel.cfg]'
+add_include '[include macros/utilities/user_prompts.cfg]'
 if [ -d /home/pi/moonraker-timelapse ]; then
     add_include '[include /home/pi/moonraker-timelapse/klipper_macro/timelapse.cfg]'
 fi
