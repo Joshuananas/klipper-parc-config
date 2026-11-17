@@ -50,7 +50,9 @@ def detect_ups():
             for line in out.stdout.splitlines():
                 # format: =;eth0;IPv4;nom;_nut._tcp;local;host;ip;port;txt...
                 f = line.split(";")
-                if f[0] == "=" and len(f) > 6:
+                # ignorer les services _nut._tcp etrangers : seuls les
+                # maitres du parc annoncent le secret en TXT
+                if f[0] == "=" and len(f) > 6 and "secret=" in line:
                     hosts.append(f[6].rstrip("."))
             if hosts:
                 pref = []

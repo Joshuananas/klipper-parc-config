@@ -198,9 +198,12 @@ discover_master() {
         host=${host%.}
         [ -n "$host" ] || continue
         secret=$(echo "$line" | grep -oE 'secret=[A-Za-z0-9]+' | cut -d= -f2)
+        # N'accepter que les services annoncant le secret du parc : un
+        # autre upsd sur le LAN (PC, autre parc) sans secret est ignore.
+        [ -n "$secret" ] || continue
         hosts+=("$host $secret")
     done < <(avahi-browse -trp _nut._tcp 2>/dev/null)
-    [ ${#hosts[@]:-0} -eq 0 ] && return 1
+    [ ${#hosts[@]} -eq 0 ] && return 1
     local pref host
     if [ -s "$NUT/parc-ups-pref" ]; then
         while read -r pref; do
