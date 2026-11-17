@@ -15,10 +15,33 @@ import sys
 import time
 import urllib.request
 
-UPS_NAME = sys.argv[1] if len(sys.argv) > 1 else "eaton@localhost"
 MOONRAKER = sys.argv[2] if len(sys.argv) > 2 else "http://127.0.0.1:7125"
 POLL_S = 5
 FAIL_GRACE = 6  # polls consecutifs en echec avant de declarer NO_COMM
+
+
+def detect_ups():
+    """Auto-detecte le premier UPS declare dans NUT via `upsc -l`.
+
+    Permet de fonctionner avec n'importe quel modele sans hardcoder le nom.
+    Retourne "<nom>@localhost" ou None si rien n'est configure.
+    """
+    try:
+        out = subprocess.run(
+            ["upsc", "-l"], capture_output=True, text=True, timeout=10
+        )
+        if out.returncode != 0:
+            return None
+        for line in out.stdout.splitlines():
+            name = line.split(":")[0].strip()
+            if name:
+                return name if "@" in name else name + "@localhost"
+    except Exception:
+        pass
+    return None
+
+
+UPS_NAME = sys.argv[1] if len(sys.argv) > 1 else (detect_ups() or "ups@localhost")
 
 VARS = {
     "ups_status": ("ups.status", "NOCOMM"),
@@ -74,6 +97,7 @@ def num(v, cast):
 
 
 def main():
+    global UPS_NAME
     fails = 0
     last_present = None
     while True:
@@ -84,6 +108,12 @@ def main():
                 set_var("ups_present", 0)
                 set_var("ups_status", "NOCOMM")
                 last_present = False
+            # Re-detection : l'UPS peut avoir ete branche/configure apres
+            # le demarrage du bridge (ne touche pas au nom explicite en argv).
+            if fails % 60 == 0 and len(sys.argv) <= 1:
+                new_name = detect_ups()
+                if new_name and new_name != UPS_NAME:
+                    UPS_NAME = new_name
             time.sleep(POLL_S)
             continue
 
@@ -94,6 +124,10 @@ def main():
         for kvar, (knut, _default) in VARS.items():
             raw = data.get(knut)
             if raw is None:
+                # Champ non expose par ce modele : -1 = indisponible, les
+                # macros bornent leurs comparaisons avec `>= 0`.
+                if kvar != "ups_status":
+                    set_var(kvar, -1.0)
                 continue
             if kvar == "ups_status":
                 set_var(kvar, raw.split()[0])  # "OL CHRG" -> "OL"
