@@ -109,8 +109,9 @@ def main():
                 set_var("ups_status", "NOCOMM")
                 last_present = False
             # Re-detection : l'UPS peut avoir ete branche/configure apres
-            # le demarrage du bridge (ne touche pas au nom explicite en argv).
-            if fails % 60 == 0 and len(sys.argv) <= 1:
+            # le demarrage, ou le nom passe en argv (service historique)
+            # peut etre stale -> upsc -l reste la source de verite.
+            if fails % 60 == 0:
                 new_name = detect_ups()
                 if new_name and new_name != UPS_NAME:
                     UPS_NAME = new_name
