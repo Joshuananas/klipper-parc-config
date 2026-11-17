@@ -63,6 +63,14 @@ fi
 echo "== 5/5 deploiement des fichiers partages =="
 bash "$REPO/host/deploy.sh"
 
+echo "== sync automatique (parc-sync.timer) =="
+chmod +x "$REPO/host/parc-sync.sh"
+sudo cp "$REPO/host/parc-sync.service" "$REPO/host/parc-sync.timer" /etc/systemd/system/
+echo 'pi ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart klipper' | sudo tee /etc/sudoers.d/parc-sync >/dev/null
+sudo chmod 440 /etc/sudoers.d/parc-sync
+sudo systemctl daemon-reload
+sudo systemctl enable --now parc-sync.timer
+
 echo "== restart moonraker + klipper =="
 sudo systemctl restart moonraker klipper
 echo "Termine : ouvre Mainsail > Machine > parc-config pour les mises a jour."
