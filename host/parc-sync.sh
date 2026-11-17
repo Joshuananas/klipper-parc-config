@@ -21,6 +21,13 @@ fi
 # Rien a deployer si ce commit a deja ete applique
 [ "$LOCAL" = "$DEPLOYED" ] && exit 0
 
+# Reprise sur coupure en attente/en cours : ne JAMAIS deployer ni
+# redemarrer — la sequence POWER_RESUME_PRINT est longue et hors print SD.
+if grep -q 'power_loss_active = 1' /home/pi/printer_data/config/variables.cfg 2>/dev/null; then
+    $LOG "power_loss_active=1 - deploy+restart reports"
+    exit 0
+fi
+
 if bash "$REPO/host/deploy.sh"; then
     echo "$LOCAL" > "$MARKER"
     $LOG "deploy.sh applique ($LOCAL)"
