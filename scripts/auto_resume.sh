@@ -60,9 +60,14 @@ fi
   echo "M118 Reprise apres coupure (Z=${z_pos})"
 } >> "$out"
 
-# 3) temperatures depuis le checkpoint (plus fiable que scanner le fichier)
-[ -n "$bed_temp" ] && [ "$bed_temp" != "0" ] && { echo "M140 S${bed_temp}"; echo "M190 S${bed_temp}"; } >> "$out"
-[ -n "$ext_temp" ] && [ "$ext_temp" != "0" ] && { echo "M104 S${ext_temp}"; echo "M109 S${ext_temp}"; } >> "$out"
+# 3) temperatures depuis le checkpoint. Garde-fou : un checkpoint capture
+#    APRES coupure des chauffages (watchdog UPS) peut contenir des consignes
+#    d'urgence (buse 50C). Un M109 vers une cible basse bloquerait en refroidis-
+#    sement. On ignore les consignes <150C (le prechauffage V4 a 200C suffit).
+bed_ok=$(python3 -c "print(1 if float('${bed_temp:-0}') >= 30 else 0)" 2>/dev/null)
+ext_ok=$(python3 -c "print(1 if float('${ext_temp:-0}') >= 150 else 0)" 2>/dev/null)
+[ "$bed_ok" = "1" ] && { echo "M140 S${bed_temp}"; echo "M190 S${bed_temp}"; } >> "$out"
+[ "$ext_ok" = "1" ] && { echo "M104 S${ext_temp}"; echo "M109 S${ext_temp}"; } >> "$out"
 
 # 4) mode E : si le fichier est en absolu (M82, pas de M83), restaurer la
 #    position E en cherchant la derniere commande E avant la coupure.
