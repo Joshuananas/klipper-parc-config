@@ -21,21 +21,45 @@ FAIL_GRACE = 6  # polls consecutifs en echec avant de declarer NO_COMM
 
 
 def detect_ups():
-    """Auto-detecte le premier UPS declare dans NUT via `upsc -l`.
+    """Auto-detecte l'UPS : local d'abord (upsc -l), puis LAN via avahi
+    (_nut._tcp annonce par ups-role.sh sur le(s) maitre(s)).
 
-    Permet de fonctionner avec n'importe quel modele sans hardcoder le nom.
-    Retourne "<nom>@localhost" ou None si rien n'est configure.
+    Ordre de choix LAN : fichier de preference /etc/nut/parc-ups-pref
+    (un hostname par ligne) puis premier service trouve.
+    Retourne "<nom>@<hote>" ou None si rien n'est trouve.
     """
     try:
         out = subprocess.run(
             ["upsc", "-l"], capture_output=True, text=True, timeout=10
         )
-        if out.returncode != 0:
-            return None
-        for line in out.stdout.splitlines():
-            name = line.split(":")[0].strip()
-            if name:
-                return name if "@" in name else name + "@localhost"
+        if out.returncode == 0:
+            for line in out.stdout.splitlines():
+                name = line.split(":")[0].strip()
+                if name:
+                    return name if "@" in name else name + "@localhost"
+    except Exception:
+        pass
+    # Fallback LAN : maitre(s) annonce(s) par avahi _nut._tcp
+    try:
+        out = subprocess.run(
+            ["avahi-browse", "-trp", "_nut._tcp"],
+            capture_output=True, text=True, timeout=15,
+        )
+        if out.returncode == 0:
+            hosts = []
+            for line in out.stdout.splitlines():
+                # format: =;eth0;IPv4;nom;_nut._tcp;local;host;ip;port;txt...
+                f = line.split(";")
+                if f[0] == "=" and len(f) > 6:
+                    hosts.append(f[6].rstrip("."))
+            if hosts:
+                pref = []
+                try:
+                    pref = [l.strip() for l in open("/etc/nut/parc-ups-pref") if l.strip()]
+                except Exception:
+                    pass
+                hosts.sort(key=lambda h: pref.index(h) if h in pref else 99)
+                return "ups@" + hosts[0]
     except Exception:
         pass
     return None

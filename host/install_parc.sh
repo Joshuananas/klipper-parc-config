@@ -63,30 +63,19 @@ fi
 echo "== 5/5 deploiement des fichiers partages =="
 bash "$REPO/host/deploy.sh"
 
-echo "== onduleur (optionnel) =="
-# Le bridge fonctionne avec ou sans UPS : sans UPS il pousse NOCOMM/NO_UPS
-# et les macros restent inertes (checkpoints 30s).
-# - Si un UPS USB connu est branche : install NUT + service bridge.
-# - La config du device (ups.conf/upsd.users/nut.conf MODE) reste
-#   machine-specifique : on prepare seulement le squelette + notice.
-UPS_USB=$(lsusb 2>/dev/null | grep -iE '0463:|051d:|0764:|0665:|06da:|050d:|10af:' || true)
-if [ -n "$UPS_USB" ] || command -v upsc >/dev/null 2>&1; then
-    sudo apt-get install -y nut nut-client
-    sudo cp "$REPO/host/ups_bridge.service" /etc/systemd/system/
-    sudo systemctl daemon-reload
-    sudo systemctl enable --now ups_bridge.service
-    echo "UPS detecte : ${UPS_USB:-NUT deja installe}"
-    echo "  -> le bridge auto-detecte l'UPS via 'upsc -l'"
-    if ! upsc -l >/dev/null 2>&1; then
-        echo "  !! AUCUN UPS declare dans NUT : configure /etc/nut/ups.conf"
-        echo "     drivers usuels : usbhid-ups (Eaton/APC USB), nutdrv_qx ou"
-        echo "     blazer_usb (Voltronic/generique), snmp-ups (UPS reseau)."
-        echo "     Puis : nut.conf MODE=standalone, upsd.users [monuser],"
-        echo "     'sudo systemctl restart nut-server nut-driver@<nom>'."
-    fi
-else
-    echo "aucun UPS USB detecte : bridge non installe (reprise fonctionne sans)"
-fi
+echo "== onduleur : role NUT automatique (failover) =="
+# ups-role.timer decide seul du role : maitre si un UPS USB est branche
+# (n'importe quel pad), esclave du maitre annonce via avahi sinon.
+# Le bridge suit (detect_ups : upsc -l local puis avahi _nut._tcp).
+sudo apt-get install -y nut-client avahi-utils libnss-mdns
+sudo cp "$REPO/host/ups-role.sh" /usr/local/bin/ups-role.sh
+sudo chmod +x /usr/local/bin/ups-role.sh
+sudo cp "$REPO/host/ups-role.service" "$REPO/host/ups-role.timer" /etc/systemd/system/
+sudo cp "$REPO/host/ups_bridge.service" /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now ups-role.timer ups_bridge.service
+sudo /usr/local/bin/ups-role.sh || true
+echo "role NUT: $(cat /etc/nut/parc-role 2>/dev/null || echo none)"
 
 echo "== sync automatique (parc-sync.timer) =="
 chmod +x "$REPO/host/parc-sync.sh"

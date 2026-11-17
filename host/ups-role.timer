@@ -1,0 +1,10 @@
+[Unit]
+Description=Detection role NUT toutes les 60s (failover UPS)
+Requires=ups-role.service
+
+[Timer]
+OnBootSec=30
+OnUnitActiveSec=60
+
+[Install]
+WantedBy=timers.target

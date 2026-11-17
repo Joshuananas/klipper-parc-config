@@ -1,0 +1,7 @@
+[Unit]
+Description=Role NUT automatique (maitre/esclave) selon UPS USB present
+After=network-online.target avahi-daemon.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ups-role.sh
