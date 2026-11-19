@@ -1,0 +1,9 @@
+[Unit]
+Description=Mise a jour hebdomadaire systeme + composants Klipper du parc
+After=network-online.target moonraker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=pi
+ExecStart=/home/pi/parc-config/host/parc-upgrade.sh
