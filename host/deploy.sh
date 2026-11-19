@@ -51,7 +51,13 @@ sudo cp "$REPO/host/parc-upgrade.service" "$REPO/host/parc-upgrade.timer" /etc/s
 echo 'pi ALL=(ALL) NOPASSWD: /usr/bin/apt-get, /usr/bin/systemctl restart moonraker, /usr/bin/systemctl restart klipper, /usr/sbin/shutdown, /usr/sbin/rpi-eeprom-update' \
     | sudo tee /etc/sudoers.d/parc-upgrade >/dev/null
 sudo chmod 440 /etc/sudoers.d/parc-upgrade
+# --- 4. Appairage parc : annonce mDNS _parc-node._tcp ----------------------
+# Chaque noeud publie nom/role/serie UPS -> decouverte automatique des
+# membres du parc (parc-peers.sh pour lister, parc-ups-map.sh pour tester
+# quel onduleur alimente quelle machine).
+chmod +x "$REPO/host/parc-pair.sh" "$REPO/host/parc-peers.sh" "$REPO/host/parc-ups-map.sh"
+sudo cp "$REPO/host/parc-pair.service" "$REPO/host/parc-pair.timer" /etc/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl enable --now parc-upgrade.timer
+sudo systemctl enable --now parc-pair.timer parc-upgrade.timer
 
 echo "parc-config deploye dans $CFG"

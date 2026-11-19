@@ -129,6 +129,32 @@ EOF
           { systemctl restart nut-driver nut-server nut-monitor 2>/dev/null || true; }
         configure_bridge "ups@localhost"
     fi
+    # Enrichir l'annonce avec le modele + n de serie de l'UPS : permet aux
+    # esclaves de distinguer physiquement les onduleurs du parc.
+    local serial model tries=0
+    while [ $tries -lt 10 ]; do
+        serial=$(upsc ups@localhost device.serial 2>/dev/null)
+        [ -n "$serial" ] && break
+        sleep 2; tries=$((tries+1))
+    done
+    model=$(upsc ups@localhost device.model 2>/dev/null)
+    if [ -n "$serial" ] && ! grep -q "serial=$serial" "$AVAHI_SVC" 2>/dev/null; then
+        cat > "$AVAHI_SVC" <<EOF
+<?xml version="1.0" standalone='no'?>
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<service-group>
+  <name replace-wildcards="yes">NUT UPS %h</name>
+  <service>
+    <type>_nut._tcp</type>
+    <port>3493</port>
+    <txt-record>secret=$(cat "$NUT/parc-secret")</txt-record>
+    <txt-record>serial=$serial</txt-record>
+    <txt-record>model=$model</txt-record>
+  </service>
+</service-group>
+EOF
+        $LOG "annonce enrichie: serial=$serial model=$model"
+    fi
 }
 
 # ---------- role ESCLAVE ----------

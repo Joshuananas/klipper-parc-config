@@ -1,0 +1,7 @@
+[Unit]
+Description=Annonce mDNS du noeud parc (_parc-node._tcp)
+After=avahi-daemon.service
+
+[Service]
+Type=oneshot
+ExecStart=/home/pi/parc-config/host/parc-pair.sh
