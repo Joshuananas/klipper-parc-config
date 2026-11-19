@@ -43,16 +43,15 @@ if [ ! -f "$HOME_PI/klipper/klippy/extras/gcode_shell_command.py" ] && [ -f "$HO
 fi
 
 # --- 3. Mise a jour hebdomadaire automatique ------------------------------
-# parc-upgrade.timer : apt upgrade + pull des composants (led_effect, KAMP,
-# timelapse, moonraker, klipper). Idempotent : installe une fois par machine.
-if [ ! -f /etc/systemd/system/parc-upgrade.timer ]; then
-    chmod +x "$REPO/host/parc-upgrade.sh"
-    sudo cp "$REPO/host/parc-upgrade.service" "$REPO/host/parc-upgrade.timer" /etc/systemd/system/
-    echo 'pi ALL=(ALL) NOPASSWD: /usr/bin/apt-get, /usr/bin/systemctl restart moonraker, /usr/bin/systemctl restart klipper' \
-        | sudo tee /etc/sudoers.d/parc-upgrade >/dev/null
-    sudo chmod 440 /etc/sudoers.d/parc-upgrade
-    sudo systemctl daemon-reload
-    sudo systemctl enable --now parc-upgrade.timer
-fi
+# parc-upgrade.timer : apt full-upgrade + update_manager Moonraker (systeme
+# et composants klipper/mainsail/etc). Idempotent : reecrit a chaque deploy
+# pour propager les changements (script, units, sudoers).
+chmod +x "$REPO/host/parc-upgrade.sh"
+sudo cp "$REPO/host/parc-upgrade.service" "$REPO/host/parc-upgrade.timer" /etc/systemd/system/
+echo 'pi ALL=(ALL) NOPASSWD: /usr/bin/apt-get, /usr/bin/systemctl restart moonraker, /usr/bin/systemctl restart klipper, /usr/sbin/shutdown, /usr/sbin/rpi-eeprom-update' \
+    | sudo tee /etc/sudoers.d/parc-upgrade >/dev/null
+sudo chmod 440 /etc/sudoers.d/parc-upgrade
+sudo systemctl daemon-reload
+sudo systemctl enable --now parc-upgrade.timer
 
 echo "parc-config deploye dans $CFG"

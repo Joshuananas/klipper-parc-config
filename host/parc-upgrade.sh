@@ -84,9 +84,19 @@ update_one() {  # $1 = nom composant ; code retour 0 ok/deja a jour, 1 echec
 wait_api || { $LOG "moonraker injoignable - abandon"; exit 1; }
 $LOG "debut upgrade"
 
-# --- 1. Systeme (apt) -----------------------------------------------------
-sudo -n apt-get update -qq && sudo -n apt-get upgrade -y -qq \
-    && $LOG "apt upgrade OK" || $LOG "apt upgrade ECHEC"
+# --- 1. Systeme (apt full-upgrade : suit les changements de dependances,
+#         kernel/firmware inclus ; laisse 'upgrade' simple des paquets retenus)
+sudo -n apt-get update -qq \
+    && sudo -n apt-get full-upgrade -y -qq \
+         -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold \
+    && $LOG "apt full-upgrade OK" || $LOG "apt full-upgrade ECHEC"
+
+# Firmware eeprom du Raspberry Pi (present seulement sur les vrais Pi ;
+# absent sur YumiPad/Armbian/Orange Pi -> ignore silencieusement)
+if command -v rpi-eeprom-update >/dev/null 2>&1; then
+    sudo -n rpi-eeprom-update -a >/dev/null 2>&1 \
+        && $LOG "rpi-eeprom verifie/applique" || $LOG "rpi-eeprom echec/ignore"
+fi
 
 # --- 2. Moonraker d'abord (il se redemarre lui-meme) ----------------------
 FAILED=""
@@ -112,4 +122,13 @@ elif [ -n "$FAILED" ]; then
     $LOG "upgrade terminee AVEC ECHECS :$FAILED"
 else
     $LOG "upgrade terminee - tout a jour"
+fi
+
+# --- 5. Reboot si le systeme le demande (kernel/firmware installe) --------
+if [ -f /var/run/reboot-required ] && [ "$(busy_state)" = "idle" ]; then
+    $LOG "reboot-required detecte - redemarrage dans 1 min (machine idle)"
+    sudo -n /usr/sbin/shutdown -r +1 "parc-upgrade: reboot post-upgrade" \
+        && $LOG "reboot programme" || $LOG "reboot IMPOSSIBLE (sudo) - a faire a la main"
+elif [ -f /var/run/reboot-required ]; then
+    $LOG "reboot-required detecte mais machine active - reboot a la main requis"
 fi
