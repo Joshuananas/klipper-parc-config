@@ -75,7 +75,8 @@ chmod +x "$REPO/host/parc-pair.sh" "$REPO/host/parc-peers.sh" "$REPO/host/parc-u
 sudo cp "$REPO/host/parc-pair.service" "$REPO/host/parc-pair.timer" /etc/systemd/system/
 sudo bash "$REPO/host/wifi-portable.sh"
 mkdir -p "$HOME_PI/bin"
-sudo install -m 755 "$REPO/host/wifi-watchdog.sh" "$HOME_PI/bin/wifi-watchdog.sh"
+sudo install -m 755 "$REPO/host/wifi-watchdog.sh" "$HOME_PI/bin/.wifi-watchdog.sh.new"
+sudo mv "$HOME_PI/bin/.wifi-watchdog.sh.new" "$HOME_PI/bin/wifi-watchdog.sh"
 sudo install -m 644 "$REPO/host/wifi-watchdog.service" "$REPO/host/wifi-watchdog.timer" /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now parc-pair.timer parc-upgrade.timer wifi-watchdog.timer

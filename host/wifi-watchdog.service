@@ -1,0 +1,8 @@
+[Unit]
+Description=Recover unavailable Wi-Fi connection
+After=NetworkManager.service
+
+[Service]
+Type=oneshot
+ExecStart=/home/pi/bin/wifi-watchdog.sh
+TimeoutStartSec=180
