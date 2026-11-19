@@ -30,3 +30,10 @@ def post(key, value):
 for key, value in json.load(open(DEFAULTS, encoding="utf-8")).items():
     if get(key) is None:
         post(key, value)
+
+# Le capteur de temperature hote (SmartPi/RPi4/...) n'a jamais de couleur
+# epinglee : la palette automatique l'harmonise avec le reste du parc.
+ds = get("view.tempchart.datasetSettings")
+if isinstance(ds, dict) and any(k.startswith("temperature_sensor ") for k in ds):
+    ds = {k: v for k, v in ds.items() if not k.startswith("temperature_sensor ")}
+    post("view.tempchart.datasetSettings", ds)
