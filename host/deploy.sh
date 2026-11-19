@@ -42,7 +42,17 @@ if [ ! -f "$HOME_PI/klipper/klippy/extras/gcode_shell_command.py" ] && [ -f "$HO
     cp -f "$REPO/host/gcode_shell_command.py" "$HOME_PI/klipper/klippy/extras/gcode_shell_command.py" || true
 fi
 
-# --- 3. Mise a jour hebdomadaire automatique ------------------------------
+# --- 3. Gcodes de test livres avec le parc --------------------------------
+# Installes dans le dossier gcodes de chaque machine ; jamais ecrases si
+# le fichier existe deja (modifie localement ou pas).
+mkdir -p "$HOME_PI/printer_data/gcodes"
+for g in "$REPO"/gcodes/*.gcode; do
+    [ -e "$g" ] || continue
+    dst="$HOME_PI/printer_data/gcodes/$(basename "$g")"
+    [ -f "$dst" ] || cp "$g" "$dst"
+done
+
+# --- 4. Mise a jour hebdomadaire automatique ------------------------------
 # parc-upgrade.timer : apt full-upgrade + update_manager Moonraker (systeme
 # et composants klipper/mainsail/etc). Idempotent : reecrit a chaque deploy
 # pour propager les changements (script, units, sudoers).
@@ -51,7 +61,7 @@ sudo cp "$REPO/host/parc-upgrade.service" "$REPO/host/parc-upgrade.timer" /etc/s
 echo 'pi ALL=(ALL) NOPASSWD: /usr/bin/apt-get, /usr/bin/systemctl restart moonraker, /usr/bin/systemctl restart klipper, /usr/sbin/shutdown, /usr/sbin/rpi-eeprom-update' \
     | sudo tee /etc/sudoers.d/parc-upgrade >/dev/null
 sudo chmod 440 /etc/sudoers.d/parc-upgrade
-# --- 4. Nom du capteur de temperature hote adapte a la carte ---------------
+# --- 5. Nom du capteur de temperature hote adapte a la carte ---------------
 # Les bundles utilisent un nom generique ; on le remplace par le vrai modele
 # de carte lu dans le device tree (RPi4, RPi5, OrangePi, YumiPad, hostname...).
 board=$(tr -d '\0' </proc/device-tree/model 2>/dev/null)
@@ -67,7 +77,7 @@ for f in "$CFG/host_extras.cfg" "$CFG/smartpad_extras.cfg"; do
     [ -f "$f" ] && sed -i -E "s/\[temperature_sensor (SmartPi|HostBoard)\]/[temperature_sensor $sname]/" "$f"
 done
 
-# --- 5. Appairage parc : annonce mDNS _parc-node._tcp ----------------------
+# --- 6. Appairage parc : annonce mDNS _parc-node._tcp ----------------------
 # Chaque noeud publie nom/role/serie UPS -> decouverte automatique des
 # membres du parc (parc-peers.sh pour lister, parc-ups-map.sh pour tester
 # quel onduleur alimente quelle machine).
