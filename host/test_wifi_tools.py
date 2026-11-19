@@ -104,6 +104,51 @@ esac''')
             result = self.run_bash(self.function('rebind') + '\nrebind ' + device)
             self.assertNotEqual(result.returncode, 0)
 
+    def watchdog_fixture(self):
+        usb = self.root / 'usb'
+        device = usb / 'devices' / '3-1.4'
+        interface = device / '3-1.4:1.0'
+        interface.mkdir(parents=True)
+        (device / 'idVendor').write_text('0bda')
+        drivers = usb / 'drivers' / 'usb'
+        drivers.mkdir(parents=True)
+        for name in ('bind', 'unbind'):
+            (drivers / name).touch()
+        network = self.root / 'net' / 'wlxNEW'
+        (network / 'wireless').mkdir(parents=True)
+        (network / 'device').symlink_to(interface)
+        self.stub('systemctl', 'exit 0')
+        self.stub('nmcli', 'echo RECONNECT >> "$EVENTS"')
+        self.stub('ip', 'echo "default via 192.0.2.1 dev wlxNEW"')
+        self.stub('flock', 'exit 0')
+        source = (HOST / 'wifi-watchdog.sh').read_text()
+        source = source.replace('/sys/class/net', str(self.root / 'net'))
+        source = source.replace('/sys/bus/usb', str(usb))
+        source = source.replace('/run/parc-wifi-watchdog.lock', str(self.root / 'lock'))
+        return source, drivers
+
+    def test_healthy_watchdog_does_not_reconnect(self):
+        source, drivers = self.watchdog_fixture()
+        self.stub('ping', 'exit 0')
+        result = self.run_bash(source)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.events(), '')
+        self.assertEqual((drivers / 'unbind').read_text(), '')
+
+    def test_failed_reconnect_rebinds_only_wifi_device(self):
+        source, drivers = self.watchdog_fixture()
+        self.env['PING_COUNT'] = str(self.root / 'ping-count')
+        self.stub('ping', '''n=0
+[ ! -f "$PING_COUNT" ] || n=$(cat "$PING_COUNT")
+n=$((n+1))
+printf '%s' "$n" > "$PING_COUNT"
+[ "$n" -ge 3 ]''')
+        result = self.run_bash(source)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.events(), 'RECONNECT\nRECONNECT\n')
+        self.assertEqual((drivers / 'unbind').read_text(), '3-1.4')
+        self.assertEqual((drivers / 'bind').read_text(), '3-1.4')
+
     def test_bash_syntax(self):
         for name in ('wifi-portable.sh', 'wifi-watchdog.sh', 'deploy.sh'):
             result = subprocess.run(['bash', '-n', str(HOST / name)],

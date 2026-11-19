@@ -77,7 +77,12 @@ for f in "$CFG/host_extras.cfg" "$CFG/smartpad_extras.cfg"; do
     [ -f "$f" ] && sed -i -E "s/\[temperature_sensor (SmartPi|HostBoard)\]/[temperature_sensor $sname]/" "$f"
 done
 
-# --- 6. Appairage parc : annonce mDNS _parc-node._tcp ----------------------
+# --- 6. Disposition Mainsail par defaut ------------------------------------
+# Groupes de macros + presets identifies sur le parc ; appliques seulement
+# si absents (jamais d'ecrasement de la personnalisation locale).
+python3 "$REPO/host/mainsail_apply.py" || true
+
+# --- 7. Appairage parc : annonce mDNS _parc-node._tcp ----------------------
 # Chaque noeud publie nom/role/serie UPS -> decouverte automatique des
 # membres du parc (parc-peers.sh pour lister, parc-ups-map.sh pour tester
 # quel onduleur alimente quelle machine).

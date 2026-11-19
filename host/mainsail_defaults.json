@@ -1,0 +1,510 @@
+{
+ "macros": {
+  "mode": "expert",
+  "macrogroups": {
+   "print-control": {
+    "name": "🖨️ Contrôle Impression",
+    "color": "error",
+    "showInStandby": false,
+    "showInPause": true,
+    "showInPrinting": true,
+    "macros": [
+     {
+      "pos": 1,
+      "name": "PAUSE",
+      "color": "group",
+      "showInStandby": false,
+      "showInPause": true,
+      "showInPrinting": true
+     },
+     {
+      "pos": 2,
+      "name": "RESUME",
+      "color": "group",
+      "showInStandby": false,
+      "showInPause": true,
+      "showInPrinting": true
+     },
+     {
+      "pos": 3,
+      "name": "CANCEL_PRINT",
+      "color": "group",
+      "showInStandby": false,
+      "showInPause": true,
+      "showInPrinting": true
+     },
+     {
+      "pos": 4,
+      "name": "M600",
+      "color": "group",
+      "showInStandby": false,
+      "showInPause": true,
+      "showInPrinting": true
+     },
+     {
+      "pos": 5,
+      "name": "SET_PAUSE_AT_LAYER",
+      "color": "group",
+      "showInStandby": false,
+      "showInPause": false,
+      "showInPrinting": true
+     },
+     {
+      "pos": 6,
+      "name": "SET_PAUSE_NEXT_LAYER",
+      "color": "group",
+      "showInStandby": false,
+      "showInPause": false,
+      "showInPrinting": true
+     }
+    ]
+   },
+   "pause-adjustments": {
+    "name": "🔧 Ajustements Pause",
+    "color": "warning",
+    "showInStandby": false,
+    "showInPause": true,
+    "showInPrinting": false,
+    "macros": [
+     {
+      "pos": 1,
+      "name": "Z_TUNE_OFFSET",
+      "color": "group",
+      "showInStandby": false,
+      "showInPause": true,
+      "showInPrinting": false
+     },
+     {
+      "pos": 2,
+      "name": "FIRST_LAYER_APPROVED",
+      "color": "group",
+      "showInStandby": false,
+      "showInPause": true,
+      "showInPrinting": false
+     },
+     {
+      "pos": 3,
+      "name": "FIRST_LAYER_FAILED",
+      "color": "group",
+      "showInStandby": false,
+      "showInPause": true,
+      "showInPrinting": false
+     }
+    ]
+   },
+   "quick-start": {
+    "name": "🚀 Démarrage Rapide",
+    "color": "primary",
+    "showInStandby": true,
+    "showInPause": false,
+    "showInPrinting": false,
+    "macros": [
+     {
+      "pos": 1,
+      "name": "AUTO_CALIBRATE_QUICK",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 2,
+      "name": "SAFE_HOME",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 3,
+      "name": "BED_MESH_CALIBRATE_HEATED",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 4,
+      "name": "Z_CALIBRATE_OFFSET_AUTO",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 5,
+      "name": "PRINT_START",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     }
+    ]
+   },
+   "full-calibration": {
+    "name": "🎯 Calibration Complète",
+    "color": "success",
+    "showInStandby": true,
+    "showInPause": false,
+    "showInPrinting": false,
+    "macros": [
+     {
+      "pos": 1,
+      "name": "AUTO_CALIBRATE_ALL",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 2,
+      "name": "AUTO_CALIBRATE_THERMAL",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 3,
+      "name": "AUTO_CALIBRATE_MESH_ALL",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 4,
+      "name": "PID_TUNE_EXTRUDER",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 5,
+      "name": "PID_TUNE_BED",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 6,
+      "name": "FLOW_MULTIPLIER_CALIBRATION",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     }
+    ]
+   },
+   "maintenance": {
+    "name": "🛠️ Maintenance & Tests",
+    "color": "info",
+    "showInStandby": true,
+    "showInPause": false,
+    "showInPrinting": false,
+    "macros": [
+     {
+      "pos": 1,
+      "name": "AUTO_CALIBRATE_MAINTENANCE",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 2,
+      "name": "BELT_TENSION_POSITION",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 3,
+      "name": "BELT_TENSION_CHECK",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 4,
+      "name": "BELT_TENSION_RESONANCE_TEST",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 5,
+      "name": "BELT_TENSION_COMPARE",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 6,
+      "name": "BELT_TENSION_HELP",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 7,
+      "name": "SYSTEM_HEALTH_CHECK",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     }
+    ]
+   },
+   "mesh-z": {
+    "name": "🗺️ Mesh & Z-Offset",
+    "color": "warning",
+    "showInStandby": true,
+    "showInPause": false,
+    "showInPrinting": false,
+    "macros": [
+     {
+      "pos": 1,
+      "name": "MESH_SHOW_STATUS",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 2,
+      "name": "MESH_SAVE_HASH",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 3,
+      "name": "MESH_FIND_MATCHING",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 4,
+      "name": "Z_CHECK_OFFSET",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 5,
+      "name": "Z_SAVE_ADJUSTMENT",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 6,
+      "name": "Z_INFO_OFFSET",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     }
+    ]
+   },
+   "emergency": {
+    "name": "🚨 Urgence",
+    "color": "error",
+    "showInStandby": true,
+    "showInPause": true,
+    "showInPrinting": true,
+    "macros": [
+     {
+      "pos": 1,
+      "name": "EMERGENCY_STOP",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": true,
+      "showInPrinting": true
+     },
+     {
+      "pos": 2,
+      "name": "TURN_OFF_HEATERS",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": true,
+      "showInPrinting": true
+     },
+     {
+      "pos": 3,
+      "name": "POWER_CANCEL_RECOVERY",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": true,
+      "showInPrinting": true
+     }
+    ]
+   },
+   "led": {
+    "name": "💡 LED",
+    "color": "info",
+    "showInStandby": true,
+    "showInPause": true,
+    "showInPrinting": true,
+    "macros": [
+     {
+      "pos": 1,
+      "name": "LED_IDLE",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": true,
+      "showInPrinting": true
+     },
+     {
+      "pos": 2,
+      "name": "LED_CALIBRATION",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": true,
+      "showInPrinting": true
+     },
+     {
+      "pos": 3,
+      "name": "LED_MAINTENANCE",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": true,
+      "showInPrinting": true
+     },
+     {
+      "pos": 4,
+      "name": "LED_ROTATION_ENABLE",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": true,
+      "showInPrinting": true
+     },
+     {
+      "pos": 5,
+      "name": "LED_ROTATION_DISABLE",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": true,
+      "showInPrinting": true
+     }
+    ]
+   },
+   "info": {
+    "name": "ℹ️ Info",
+    "color": "info",
+    "showInStandby": true,
+    "showInPause": true,
+    "showInPrinting": true,
+    "macros": [
+     {
+      "pos": 1,
+      "name": "GET_CALIBRATION_STATUS",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": true,
+      "showInPrinting": true
+     },
+     {
+      "pos": 2,
+      "name": "GET_MACHINE_PROFILE",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": true,
+      "showInPrinting": true
+     },
+     {
+      "pos": 3,
+      "name": "MESH_GET_HASH_STATUS",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": true,
+      "showInPrinting": true
+     },
+     {
+      "pos": 4,
+      "name": "GET_RETRACTION_SETTINGS",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": true,
+      "showInPrinting": true
+     }
+    ]
+   },
+   "config": {
+    "name": "⚙️ Configuration",
+    "color": "primary",
+    "showInStandby": true,
+    "showInPause": false,
+    "showInPrinting": false,
+    "macros": [
+     {
+      "pos": 1,
+      "name": "LIST_HARDWARE_PROFILES",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 2,
+      "name": "SHOW_HARDWARE_PROFILE",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 3,
+      "name": "SET_MATERIAL_PROFILE",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     },
+     {
+      "pos": 5,
+      "name": "VALIDATE_CONFIG",
+      "color": "group",
+      "showInStandby": true,
+      "showInPause": false,
+      "showInPrinting": false
+     }
+    ]
+   }
+  }
+ },
+ "presets": {
+  "presets": {
+   "582e3883-3cdc-4c21-8845-31a588706566": {
+    "id": null,
+    "name": "PLA",
+    "values": {
+     "extruder": {
+      "bool": true,
+      "type": "heater",
+      "value": "205"
+     },
+     "heater_bed": {
+      "bool": true,
+      "type": "heater",
+      "value": "65"
+     }
+    },
+    "gcode": ""
+   }
+  }
+ }
+}
