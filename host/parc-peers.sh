@@ -1,17 +1,11 @@
 #!/bin/bash
 # parc-peers.sh — liste les machines du parc visibles via _parc-node._tcp.
 # Usage : bash parc-peers.sh
-avahi-browse -trp _parc-node._tcp 2>/dev/null | awk -F';' '
-/^=/ {
-    host=""; role=""; serial=""; model=""
-    n=split($0, a, ";")
-    # champ 7 = hostname resolu ; les TXT sont en champ 9+
-    for (i=9; i<=n; i++) {
-        gsub(/"/,"",a[i])
-        if (a[i] ~ /^host=/)       host=substr(a[i],6)
-        if (a[i] ~ /^role=/)       role=substr(a[i],6)
-        if (a[i] ~ /^ups_serial=/) serial=substr(a[i],12)
-        if (a[i] ~ /^ups_model=/)  model=substr(a[i],11)
-    }
-    printf "%-10s role=%-7s ups_serial=%-15s model=%s\n", host, role, serial, model
-}' | sort -u
+printf "%-10s %-8s %-18s %s\n" HOST ROLE UPS_SERIAL UPS_MODEL
+avahi-browse -trp _parc-node._tcp 2>/dev/null | grep '^=' | while IFS=';' read -r _ iface proto name type domain host addr port txt; do
+    h=$(echo "$txt" | grep -o 'host=[^" ]*' | cut -d= -f2)
+    r=$(echo "$txt" | grep -o 'role=[^" ]*' | cut -d= -f2)
+    s=$(echo "$txt" | grep -o 'ups_serial=[^" ]*' | cut -d= -f2)
+    m=$(echo "$txt" | grep -o 'ups_model=[^" ]*' | cut -d= -f2)
+    printf "%-10s %-8s %-18s %s\n" "${h:-$name}" "${r:-?}" "${s:--}" "${m:--}"
+done | sort -u
